@@ -505,7 +505,8 @@ camera with a temporary yaml file to hold the parameters.
 def get_rs_node_description(params):
     import tempfile
     import yaml
-    tmp_yaml = tempfile.NamedTemporaryFile(prefix='launch_rs_',delete=False)
+    #tmp_yaml = tempfile.NamedTemporaryFile(prefix='launch_rs_',delete=False) # Use this if we need to Debug YAML File
+    tmp_yaml = tempfile.NamedTemporaryFile(prefix='launch_rs_')
     params = convert_params(params)
     ros_params = {"ros__parameters":params}
 

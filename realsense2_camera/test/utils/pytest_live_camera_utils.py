@@ -186,7 +186,7 @@ def check_if_camera_connected(device_type, serial_no=None):
         name_line = long_data[index].split()
         if name_line[0] != "Intel":
             continue
-        if name_line[2] != device_type:
+        if  device_type not in ''.join(name_line[2]) :
             continue
         if serial_no == None:
             return True
