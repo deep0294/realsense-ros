@@ -161,18 +161,26 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
             ''' 
             initialize, run and check the data 
             '''
+            print ("TestLiveCamera_Change_Resolution - Start")
             self.init_test("RsTest"+params['camera_name'])
             self.spin_for_time(wait_time=1.0)
+            print ("get_camera_capabilities - Start")
             cap = pytest_live_camera_utils.get_camera_capabilities(params['device_type'])
+            print (cap)
+            print ("get_camera_capabilities - End")
             if cap == None:
                 debug_print("Device not found? : " + params['device_type'])
                 return
+            print ("create_param_ifs - Start")
             self.create_param_ifs(get_node_heirarchy(params))
+            print ("create_param_ifs - End")
+            print ("get_default_profiles - Start")
             config["Color"]["default_profile1"],config["Color"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["color_profile"], "Color")
-            config["Depth"]["default_profile1"],config["Depth"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Depth")
-            config["Infrared"]["default_profile1"],config["Infrared"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared")
-            config["Infrared1"]["default_profile1"],config["Infrared1"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared1")
-            config["Infrared2"]["default_profile1"],config["Infrared2"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared2")
+            #config["Depth"]["default_profile1"],config["Depth"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Depth")
+            #config["Infrared"]["default_profile1"],config["Infrared"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared")
+            #config["Infrared1"]["default_profile1"],config["Infrared1"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared1")
+            #config["Infrared2"]["default_profile1"],config["Infrared2"]["default_profile2"] = pytest_live_camera_utils.get_default_profiles(cap["depth_profile"], "Infrared2")
+            print ("get_default_profiles - end")
             for key in cap["color_profile"]:
                 profile_type = key[0]
                 profile = key[1]

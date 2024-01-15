@@ -36,6 +36,12 @@ def get_profile_config(camera_name):
 def get_default_profiles(cap, profile):
     profile1 = "" 
     profile2 = ""
+    
+    print ("------------------------------------------------")
+    print (profile)
+    print (cap)
+    print ("+++++++++++++++++++++++++++++++++++++++++++++++++")
+    
     for profiles in cap:
         if profiles[0] == profile and int(profiles[1].split('x')[0]) != 640:
             profile1 = profiles[1]
@@ -71,8 +77,11 @@ def get_depth_profiles(long_data, start_index, end_index):
     for line_no in range(start_index, end_index):
         if len(long_data[line_no]) == 0:
             break
+        print ("******************************************************************")
         debug_print("depth profile processing:" + long_data[line_no])
         depth_profile = long_data[line_no].split()
+        print (depth_profile)
+        print (len(depth_profile))
         if len(depth_profile) == 5:
             profile = depth_profile[0]
             value = depth_profile[1]+"x"+depth_profile[3]
@@ -81,12 +90,18 @@ def get_depth_profiles(long_data, start_index, end_index):
             profile = depth_profile[0]+depth_profile[1]
             value = depth_profile[2]+"x"+depth_profile[4]
             format = depth_profile[5]
+        elif len(depth_profile) == 7:
+            profile = depth_profile[0]+depth_profile[2]
+            value = depth_profile[3]+"x"+depth_profile[5]
+            format = depth_profile[6]
         else:
             assert false, "Seems that the depth profile info format printed by rs-enumerate-devices changed"
         value = value[:-2]
         debug_print("depth profile added: " + profile, value, format)
+        print("depth profile added: " + profile, value, format)
         cap.append([profile, value, format])
-    debug_print(cap)
+        print ("###################################################################")
+    #debug_print(cap)
     return cap
 
  
@@ -95,18 +110,27 @@ def get_color_profiles(long_data, start_index, end_index):
     for line_no in range(start_index, end_index):
         if len(long_data[line_no]) == 0:
             break
+        print ("******************************************************************")
         debug_print("color profile processing:" + long_data[line_no])
+        print("********** color profile processing:" + long_data[line_no])
         color_profile = long_data[line_no].split()
+        print("********** color profile processing: len(color_profile) ****** " + str(len(color_profile)))
+        print(color_profile)
         if len(color_profile) == 5:
             profile = color_profile[0]
             value = color_profile[1]+"x"+color_profile[3]
-            format = color_profile[4]
+            format1 = color_profile[4]
+        elif len(color_profile) == 6:
+            profile = color_profile[0]
+            value = color_profile[1]+"x"+color_profile[4]
+            format1 = color_profile[5]
         else:
             assert false, "Seems that the color profile info format printed by rs-enumerate-devices changed"
         value = value[:-2]
-        debug_print("color profile added: " + profile, value, format)
-        cap.append([profile, value, format])
-    debug_print(cap)
+        debug_print("color profile added: " + profile, value, format1)
+        cap.append([profile, value, format1])
+        print ("###################################################################")
+    #debug_print(cap)
     return cap
 
 NAME_LINE_INDEX = 1
