@@ -39,17 +39,23 @@ from rcl_interfaces.msg import ParameterValue
 from rcl_interfaces.srv import SetParameters, GetParameters, ListParameters
 from pytest_live_camera_utils import debug_print
 def check_if_skip_test(profile, format):
-    '''
     if profile == 'Color':
         if "BGRA8" == format:
+            return True
+        if "BGR8" == format:
+            return True
+        if "RGB8" == format:
             return True
         if "RGBA8" == format:
             return True
         if "Y8" == format:
             return True
+        if "Y16" == format:
+            return True
     elif profile == 'Depth':
         if "Z16" == format:
             return True
+    '''
     el
     if profile == 'Infrared':
         if "Y8" == format:
@@ -100,7 +106,6 @@ def check_if_skip_test(profile, format):
             return True
         if "RAW10" == format:
             return True
-    '''
     if profile == 'Infrared':
         if "Y8" == format:
             return True
@@ -115,6 +120,10 @@ def check_if_skip_test(profile, format):
         if "Y8" == format:
             return True
         if "Y16" == format:
+            return True
+    '''
+    if profile == 'Color':
+        if "M420" == format: # M420 not supported yet in ROS2
             return True
     return False
 
@@ -131,6 +140,10 @@ test_params_all_profiles_d435 = {
     'camera_name': 'D435',
     'device_type': 'D435',
     }
+test_params_all_profiles_d585s = {
+    'camera_name': 'D585S',
+    'device_type': 'D585S',
+    }
 
 
 '''
@@ -144,18 +157,21 @@ machines that don't have the D455 connected.
 @pytest.mark.parametrize("launch_descr_with_parameters", [
     pytest.param(test_params_all_profiles_d455, marks=pytest.mark.d455),
     pytest.param(test_params_all_profiles_d415, marks=pytest.mark.d415),
-    pytest.param(test_params_all_profiles_d435, marks=pytest.mark.d435),]
+    pytest.param(test_params_all_profiles_d435, marks=pytest.mark.d435),
+    pytest.param(test_params_all_profiles_d585s, marks=pytest.mark.d585s),]
     ,indirect=True)
 @pytest.mark.launch(fixture=launch_descr_with_parameters)
 class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
     def test_LiveCamera_Change_Resolution(self,launch_descr_with_parameters):
         skipped_tests = []
         failed_tests = []
+        passed_tests = []
         num_passed = 0
         num_failed = 0
         params = launch_descr_with_parameters[1]
         themes = [{'topic':get_node_heirarchy(params)+'/color/image_raw', 'msg_type':msg_Image,'expected_data_chunks':1}]
         config = pytest_live_camera_utils.get_profile_config(get_node_heirarchy(params))
+        print (config)
         try:
             ''' 
             initialize, run and check the data 
@@ -184,8 +200,10 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
                 themes[0]['width'] = int(profile.split('x')[0])
                 themes[0]['height'] = int(profile.split('x')[1])
                 if themes[0]['width'] == int(config[profile_type]["default_profile2"].split('x')[0]):
+                    print("Actually Testing " + config[profile_type]["default_profile1"])
                     self.set_string_param(config[profile_type]["profile"], config[profile_type]["default_profile1"])
                 else:
+                    print("Actually Testing " + config[profile_type]["default_profile2"])
                     self.set_string_param(config[profile_type]["profile"], config[profile_type]["default_profile2"])
                 self.set_bool_param(config[profile_type]["param"], True)
                 self.disable_all_params()
@@ -197,7 +215,11 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
                     ret = self.run_test(themes)
                     assert ret[0], ret[1]
                     assert self.process_data(themes), " ".join(key) + " failed"
+                    print("Testing completed for " + " ".join(key))
+                    passed_tests.append(" ".join(key))
                     num_passed += 1
+                    import time
+                    time.sleep(10)
                 except Exception as e:
                     exc_type, exc_obj, exc_tb = sys.exc_info()
                     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -211,6 +233,7 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
                 profile_type = key[0]
                 profile = key[1]
                 format = key[2]
+                print ("keys... " + key[0] + ".."+ key[1] + ".."+ key[2] + "..")
                 if check_if_skip_test(profile_type, format):
                     skipped_tests.append(" ".join(key))
                     continue
@@ -219,15 +242,42 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
                 themes[0]['topic'] = config[profile_type]['topic']
                 themes[0]['width'] = int(profile.split('x')[0])
                 themes[0]['height'] = int(profile.split('x')[1])
+                print (config[profile_type]["default_profile1"])
+                print (config[profile_type]["default_profile2"])
                 if themes[0]['width'] == int(config[profile_type]["default_profile2"].split('x')[0]):
+                    print ("setting in if cond.")
+                    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    print (themes[0]['topic'])
+                    print (themes[0]['width'])
+                    print (themes[0]['height'])
+                    print (config[profile_type]["default_profile2"])
+                    print (config[profile_type]["profile"])
+                    print (config[profile_type]["default_profile1"])
+                    print ("=======================================================================")
                     self.set_string_param(config[profile_type]["profile"], config[profile_type]["default_profile1"])
                 else:
+                    print ("setting in else cond.")
+                    print ("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                    print (themes[0]['topic'])
+                    print (themes[0]['width'])
+                    print (themes[0]['height'])
+                    print (config[profile_type]["profile"])
+                    print (config[profile_type]["topic"])
+                    print (config[profile_type]["default_profile1"])
+                    print (config[profile_type]["default_profile2"])
+                    print (profile)
+                    print ("=======================================================================")
                     self.set_string_param(config[profile_type]["profile"], config[profile_type]["default_profile2"])
                 self.set_bool_param(config[profile_type]["param"], True)
 
 
                 self.disable_all_params()
-                self.spin_for_time(wait_time=0.2)
+                self.spin_for_time(wait_time=2)
+                print ("#######################################################################")
+                print ("Actually Testing " + profile)
+                print ("Actually Testing " + format)
+                print (themes)
+                print ("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
                 self.set_string_param(config[profile_type]["profile"], profile)
                 self.set_string_param(config[profile_type]["format"], format)
                 self.set_bool_param(config[profile_type]["param"], True)
@@ -236,6 +286,10 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
                     assert ret[0], ret[1]
                     assert self.process_data(themes), " ".join(key) + " failed"
                     num_passed += 1
+                    passed_tests.append(" ".join(key))
+                    print("Testing completed for " + " ".join(key))
+                    import time
+                    time.sleep(10)
                 except Exception as e:
                     print("Test failed")
                     print(e)
@@ -247,10 +301,11 @@ class TestLiveCamera_Change_Resolution(pytest_rs_utils.RsTestBaseClass):
             pytest_rs_utils.kill_realsense2_camera_node()
             self.shutdown()
             print("Tests passed " + str(num_passed))
+            print("\n".join(passed_tests))
             print("Tests skipped " + str(len(skipped_tests)))
             if len(skipped_tests):
-                debug_print("\nSkipped tests:" + params['device_type'])
-                debug_print("\n".join(skipped_tests))
+                print("\nSkipped tests:" + params['device_type'])
+                print("\n".join(skipped_tests))
             print("Tests failed " + str(num_failed))
             if len(failed_tests):
                 print("\nFailed tests:" + params['device_type'])

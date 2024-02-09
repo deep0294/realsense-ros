@@ -247,7 +247,7 @@ bool RosSensor::start(const std::vector<stream_profile>& profiles)
     rs2::sensor::open(profiles);
 
     for (auto& profile : profiles)
-    ROS_INFO_STREAM("Open profile: " << ProfilesManager::profile_string(profile));
+    ROS_INFO_STREAM("Deepak - Open profile: " << ProfilesManager::profile_string(profile));
 
     rs2::sensor::start(_frame_callback);
 

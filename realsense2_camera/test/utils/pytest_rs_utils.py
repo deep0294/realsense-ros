@@ -82,7 +82,7 @@ import os
 import requests
 
 def debug_print(*args):
-    if(False):
+    if(True):
         print(*args)
 
 class RosbagManager(object):
@@ -895,7 +895,7 @@ class RsTestBaseClass():
             print('Spun for time once... ' )
             rclpy.spin_once(self.node, timeout_sec=wait_time)
  
-    def run_test(self, themes, initial_wait_time=0.0, timeout=0):
+    def run_test(self, themes, initial_wait_time=2.0, timeout=0):
         try:
             for theme in themes:
                 store_raw_data = False
